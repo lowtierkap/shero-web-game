@@ -1,122 +1,62 @@
 :root {
-    --primary: #ff85a2;
-    --secondary: #4a3728;
-    --bg: #fdf5e6;
+    --gold: #ffd700;
+    --red: #ff4444;
 }
 
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg);
-    color: var(--secondary);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    /* Prevents the "pull-to-refresh" bounce on mobile */
-    overscroll-behavior-y: contain;
-    user-select: none;
+    margin: 0; background: #2c3e50; color: white;
+    font-family: sans-serif; overflow: hidden; touch-action: none;
 }
 
-#stats {
-    text-align: center;
-    padding: 20px;
-    background: white;
-    width: 100%;
-    box-sizing: border-box;
-    border-bottom: 5px solid var(--primary);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+#ui {
+    display: flex; justify-content: space-around; padding: 15px;
+    background: rgba(0,0,0,0.5); font-weight: bold;
 }
 
-.counter-label {
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+#game-zone {
+    position: relative; height: 60vh; display: flex; 
+    flex-direction: column; align-items: center; justify-content: space-around;
 }
 
-#purr-count {
-    font-size: 3rem;
-    font-weight: bold;
-    color: var(--primary);
-    margin: 5px 0;
+#cat-img { width: 250px; transition: transform 0.1s; }
+
+.bowl { font-size: 5rem; position: relative; width: 100px; text-align: center; }
+
+#cheese-item {
+    position: absolute; top: -10px; left: 25px;
+    font-size: 3rem; cursor: grab; z-index: 100;
+    user-select: none; transition: transform 0.1s;
 }
 
-#game-container {
-    position: relative;
-    width: 95%;
-    max-width: 500px;
-    margin: 20px auto;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    border-radius: 15px;
-    overflow: hidden;
-    line-height: 0;
-    /* CRITICAL: Stops the browser from intercepting touch for scrolling */
-    touch-action: none; 
-}
-
-#cat-image {
-    width: 100%;
-    height: auto;
-    pointer-events: none;
-}
-
-#belly-hitbox {
-    position: absolute;
-    top: 20%;
-    left: 20%;
-    width: 60%;
-    height: 50%;
-    cursor: pointer;
-    z-index: 10;
-    /* background: rgba(0,0,0,0.1); /* Uncomment to see the rub zone */
+#haha-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 8rem; color: var(--red); font-weight: 900;
+    display: none; z-index: 1000; text-shadow: 5px 5px #000;
 }
 
 #shop {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    padding: 20px;
-    max-width: 600px;
-    width: 100%;
-    box-sizing: border-box;
+    height: 30vh; background: #34495e; padding: 10px;
+    display: flex; flex-direction: column; gap: 10px;
 }
 
-.upgrade-btn {
-    background: white;
-    border: 2px solid var(--primary);
-    padding: 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.2s;
-    display: flex;
-    flex-direction: column;
-    font-size: 0.9rem;
+#btn-sell {
+    background: var(--gold); border: none; padding: 15px;
+    font-weight: bold; border-radius: 10px; cursor: pointer;
 }
 
-.upgrade-btn:hover:not(:disabled) {
-    background: var(--primary);
-    color: white;
+.upgrades { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+
+.upgrades button {
+    font-size: 0.7rem; padding: 10px 5px; border-radius: 5px; border: none;
+    background: #ecf0f1; cursor: pointer;
 }
 
-.upgrade-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+#win-screen {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+    display: none; flex-direction: column; align-items: center;
+    justify-content: center; z-index: 2000;
 }
 
-.floating-text {
-    position: absolute;
-    color: var(--primary);
-    font-weight: bold;
-    pointer-events: none;
-    animation: floatUp 0.6s ease-out forwards;
-    font-size: 1.8rem;
-    z-index: 1000;
-    text-shadow: 1px 1px 0px white;
-}
-
-@keyframes floatUp {
-    0% { transform: translateY(0) scale(1); opacity: 1; }
-    100% { transform: translateY(-80px) scale(1.2); opacity: 0; }
+#confetti-canvas {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1500;
 }
