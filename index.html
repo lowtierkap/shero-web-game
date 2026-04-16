@@ -3,31 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cheese Thief [TWO-TAP]</title>
+    <title>Shero's Cheese Heist</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
-        
         <header id="stat-bar">
             <div class="stat-item">
-                <span class="label">STOLEN:</span>
-                <span id="cheese-count" class="value">0</span> / 200k
+                <span class="label">CHEESE</span>
+                <span id="cheese-count" class="value">0</span>
             </div>
             <div class="stat-item">
-                <span class="label">POINTS:</span>
+                <span class="label">POINTS</span>
                 <span id="points-count" class="value">0</span>
             </div>
         </header>
 
         <main id="game-arena">
+            <div id="shero-mind">
+                <div id="mood-tag">MOOD: <span id="mood-text">SLEEPY</span></div>
+                <div id="thought-bubble">"..."</div>
+            </div>
             
             <div id="cat-container">
-                <img id="cat-img" src="IMG_9246.png" alt="Sleeping Cat">
-                
+                <img id="cat-img" src="IMG_9246.png" alt="Shero">
                 <div id="cat-status-indicator" class="sleeping"></div>
-                
-                <div id="haha-overlay">HAHA</div>
+                <div id="haha-overlay">SHERO CAUGHT YOU!</div>
             </div>
             
             <div class="bowl-system">
@@ -38,46 +39,46 @@
                 <div id="transfer-line">⬇️</div>
                 <button id="bowl-target" class="bowl-btn" onclick="tapTarget()">
                     <span class="icon">🥣</span>
-                    <span id="holding-indicator">🧀</span>
+                    <div id="holding-indicator">🧀</div>
                 </button>
             </div>
         </main>
 
         <footer id="shop">
-            <div class="shop-action">
-                <button id="btn-sell" onclick="sellCheese()">SELL CHEESE</button>
-            </div>
+            <button id="btn-sell" onclick="sellCheese()">SELL CHEESE</button>
+            
             <div class="upgrades-grid">
-                
+                <button id="up-catnip" onclick="buyCatnip()" class="upgrade-card catnip">
+                    <span class="up-title">🌿 CATNIP (1,000 Pts)</span>
+                    <p class="up-desc">Force "Deep Dream" for 30s.</p>
+                </button>
+
                 <button id="up-extra" onclick="buyExtraCheese()" class="upgrade-card">
                     <span class="up-title">Extra Cheese (Lvl <span id="lvl-extra">0</span>)</span>
-                    <p class="up-desc">Steal more cheese per sequence (Max 5).</p>
-                    <span class="up-cost" id="cost-extra">10</span> Pts
+                    <p class="up-desc">Steal more per tap.</p>
+                    <span class="up-cost" id="cost-extra">10</span>
                 </button>
                 
                 <button id="up-less" onclick="buyLessCheese()" class="upgrade-card">
-                    <span class="up-title">Less Req (Lvl <span id="lvl-less">0</span>)</span>
-                    <p class="up-desc">Sell less cheese for points (10 ➔ 2).</p>
-                    <span class="up-cost" id="cost-less">50</span> Pts
-                </button>
-                
-                <button id="up-points" onclick="buyExtraPoints()" class="upgrade-card">
-                    <span class="up-title">Multi (x<span id="val-multi">1</span>)</span>
-                    <p class="up-desc">Earn extra points from selling (x1 ➔ x5).</p>
-                    <span class="up-cost" id="cost-multi">100</span> Pts
+                    <span class="up-title">Efficiency (Lvl <span id="lvl-less">0</span>)</span>
+                    <p class="up-desc">Lower sell requirement.</p>
+                    <span class="up-cost" id="cost-less">50</span>
                 </button>
 
+                <button id="up-points" onclick="buyExtraPoints()" class="upgrade-card">
+                    <span class="up-title">Multiplier (x<span id="val-multi">1</span>)</span>
+                    <p class="up-desc">More points per sale.</p>
+                    <span class="up-cost" id="cost-multi">100</span>
+                </button>
             </div>
         </footer>
-
     </div>
 
     <div id="win-screen">
         <h1>🏆</h1>
-        <p>You stole it all!</p>
-        <button onclick="clearSaveAndReload()">Reset & Play Again</button>
+        <p>You outsmarted Shero!</p>
+        <button onclick="clearSaveAndReload()">Restart Heist</button>
     </div>
-    <canvas id="confetti-canvas"></canvas>
 
     <script src="script.js"></script>
 </body>
