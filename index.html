@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belly Rub Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="stats">
+        <div class="counter-label">Purr Points</div>
+        <p id="purr-count">0</p>
+        <div id="pps-display">Points Per Second: 0</div>
+    </div>
+
+    <div id="game-container">
+        <img id="cat-image" src="cat.png" alt="Sleeping Cat">
+        <div id="belly-hitbox"></div>
+    </div>
+
+    <div id="shop">
+        <button class="upgrade-btn" id="upgrade-feather" onclick="buyUpgrade('feather', 100, 1)">
+            <span>🪶 Feather Duster</span>
+            <span class="price">Cost: 100</span>
+        </button>
+        <button class="upgrade-btn" id="upgrade-post" onclick="buyUpgrade('post', 1000, 10)">
+            <span>🪵 Scratch Post</span>
+            <span class="price">Cost: 1,000</span>
+        </button>
+        <button class="upgrade-btn" id="upgrade-machine" onclick="buyUpgrade('machine', 10000, 100)">
+            <span>🤖 Purr-o-matic</span>
+            <span class="price">Cost: 10,000</span>
+        </button>
+        <button class="upgrade-btn" id="upgrade-lotion" onclick="buyLotion()">
+            <span>🧴 Silk Lotion (2x Tap)</span>
+            <span class="price" id="lotion-cost">Cost: 500</span>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
