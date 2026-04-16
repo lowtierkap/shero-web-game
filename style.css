@@ -1,0 +1,111 @@
+:root {
+    --primary: #ff85a2;
+    --secondary: #4a3728;
+    --bg: #fdf5e6;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg);
+    color: var(--secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    overflow-x: hidden;
+}
+
+#stats {
+    text-align: center;
+    padding: 20px;
+    background: white;
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 5px solid var(--primary);
+}
+
+.counter-label {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+#purr-count {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--primary);
+    margin: 10px 0;
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    overflow: hidden;
+    line-height: 0;
+}
+
+#cat-image {
+    width: 100%;
+    height: auto;
+}
+
+#belly-hitbox {
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 40%;
+    cursor: pointer;
+    z-index: 10;
+}
+
+#shop {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.upgrade-btn {
+    background: white;
+    border: 2px solid var(--primary);
+    padding: 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.upgrade-btn:hover:not(:disabled) {
+    background: var(--primary);
+    color: white;
+}
+
+.upgrade-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.floating-text {
+    position: absolute;
+    color: var(--primary);
+    font-weight: bold;
+    pointer-events: none;
+    animation: floatUp 0.8s ease-out forwards;
+    font-size: 1.5rem;
+    z-index: 100;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-100px); opacity: 0; }
+}
