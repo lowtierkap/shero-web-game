@@ -1,4 +1,4 @@
-const storageKey = 'cheese_thief_pro_save';
+const storageKey = 'shero_heist_final';
 let state = JSON.parse(localStorage.getItem(storageKey)) || {
     cheese: 0, points: 0, lvlExtra: 0, lvlLess: 0, lvlMulti: 1
 };
@@ -6,112 +6,165 @@ let state = JSON.parse(localStorage.getItem(storageKey)) || {
 const WIN_TARGET = 200000;
 const catImg = document.getElementById('cat-img');
 const statusIndicator = document.getElementById('cat-status-indicator');
+const moodText = document.getElementById('mood-text');
+const thoughtBubble = document.getElementById('thought-bubble');
 const haha = document.getElementById('haha-overlay');
-const targetBowl = document.getElementById('bowl-target');
-const sourceBowl = document.getElementById('bowl-source');
 const holdingIndicator = document.getElementById('holding-indicator');
-
-const mainCatPhoto = "IMG_9246.png"; 
+const sourceBowl = document.getElementById('bowl-source');
 
 let isAlert = false;
 let isHoldingCheese = false;
 let loopActive = false;
-let streak = 0; // New: Adrenaline/Streak mechanic
+let streak = 0;
+let catnipActive = false;
 
-// MECHANIC: PICK UP (Tap Source)
+// --- SHERO'S THOUGHTS LIBRARY ---
+const thoughts = {
+    "Deep Sleep": [
+        "Dreaming of a mountain of mice...",
+        "Everything is so quiet...",
+        "The sun is warm in my dream.",
+        "Zzz... extra cheese for everyone... zzz"
+    ],
+    "Normal": [
+        "Is that a bird outside?",
+        "I think I heard the fridge open...",
+        "My tail is itchy...",
+        "Just five more minutes of sleep."
+    ],
+    "Restless": [
+        "I sense a disturbance in the cheese...",
+        "Who is moving?!",
+        "The floorboard just creaked...",
+        "I'm half-awake and hungry."
+    ],
+    "Catnip": [
+        "WHOA... colors...",
+        "The cheese is dancing!",
+        "I am the king of the universe.",
+        "I can see through time..."
+    ]
+};
+
+// --- CORE MECHANICS ---
+
 function tapSource() {
     if (isAlert) { triggerLoss(); return; }
     if (isHoldingCheese) return; 
-
     isHoldingCheese = true;
-    sourceBowl.style.opacity = "0.3";
-    holdingIndicator.style.display = "block"; 
-    holdingIndicator.innerText = "🧀";
+    sourceBowl.style.opacity = "0.2";
+    holdingIndicator.style.display = "block";
 }
 
-// MECHANIC: DROP OFF (Tap Target)
 function tapTarget() {
     if (isAlert) { triggerLoss(); return; }
     if (!isHoldingCheese) return; 
 
-    // Streak Bonus: Every 5 successful steals increases the yield
     streak++;
-    let streakBonus = Math.floor(streak / 5);
-    let amount = (1 + state.lvlExtra) + streakBonus;
-    
-    state.cheese += amount;
+    let bonus = Math.floor(streak / 5);
+    state.cheese += (1 + state.lvlExtra + bonus);
     
     isHoldingCheese = false;
     sourceBowl.style.opacity = "1";
     holdingIndicator.style.display = "none";
-
-    // Small visual pop for the streak
-    if (streak % 5 === 0) {
-        console.log("Streak Bonus Active! +" + streakBonus);
-    }
 
     if (state.cheese >= WIN_TARGET) triggerWin();
     save();
 }
 
-// ALERT LOGIC: 10-15s SAFE WINDOW + PRE-WAKE TWITCH
+// Risk a Pet
+catImg.onclick = () => {
+    if (isAlert) { triggerLoss(); return; }
+    if (Math.random() < 0.25) {
+        triggerLoss();
+    } else {
+        state.cheese += 50;
+        streak += 5;
+        save();
+        catImg.style.filter = "brightness(2)";
+        setTimeout(() => catImg.style.filter = "brightness(1)", 100);
+    }
+};
+
+// --- THE SHERO ENGINE ---
+
 function gameLoop() {
-    if (loopActive) return; 
+    if (loopActive) return;
     loopActive = true;
 
     function runCycle() {
-        // Safe Window: 10-15 seconds
-        let safeTime = Math.floor(Math.random() * 5001) + 10000; 
-        
-        statusIndicator.className = "sleeping"; 
+        if (catnipActive) {
+            updateMood("Catnip");
+            return; // Catnip timer handles the reset
+        }
 
-        // T-minus 1.5 seconds: The Twitch (Warning)
-        setTimeout(() => {
-            if (!isAlert) {
-                catImg.style.animation = "shake 0.2s infinite";
-            }
-        }, safeTime - 1500);
+        const moodRoll = Math.random();
+        let mood = "Normal";
+        let duration = 12000;
 
+        if (moodRoll < 0.2) { mood = "Deep Sleep"; duration = 18000; }
+        else if (moodRoll > 0.8) { mood = "Restless"; duration = 7000; }
+
+        updateMood(mood);
+        statusIndicator.className = "sleeping";
+
+        // Pre-wake Twitch (1.5s before)
         setTimeout(() => {
-            // ALERT STATE: Cat wakes up
+            if (!isAlert && !catnipActive) catImg.style.animation = "shake 0.15s infinite";
+        }, duration - 1500);
+
+        // Wake up
+        setTimeout(() => {
+            if (catnipActive) { runCycle(); return; }
+            
             isAlert = true;
             catImg.style.animation = "none";
             statusIndicator.className = "alert";
-            catImg.style.transform = "scale(1.05)";
-            
-            // If caught mid-transfer when he wakes up, reset streak
-            if (isHoldingCheese) {
-                streak = 0;
-            }
+            if (isHoldingCheese) streak = 0;
 
-            // Cat stays alert for 1.3 seconds
             setTimeout(() => {
                 isAlert = false;
-                catImg.style.transform = "scale(1)";
-                runCycle(); 
-            }, 1300);
-
-        }, safeTime);
+                runCycle();
+            }, 1400);
+        }, duration);
     }
-
     runCycle();
 }
 
+function updateMood(mood) {
+    currentMood = mood;
+    moodText.innerText = mood.toUpperCase();
+    const possibleThoughts = thoughts[mood] || thoughts["Normal"];
+    thoughtBubble.innerText = `"${possibleThoughts[Math.floor(Math.random() * possibleThoughts.length)]}"`;
+}
+
+function buyCatnip() {
+    if (state.points >= 1000 && !catnipActive) {
+        state.points -= 1000;
+        catnipActive = true;
+        updateMood("Catnip");
+        save();
+        setTimeout(() => {
+            catnipActive = false;
+            loopActive = false;
+            gameLoop();
+        }, 30000);
+    }
+}
+
 function triggerLoss() {
-    // Penalty: Lose 20% of points and reset streak to zero
     state.points = Math.floor(state.points * 0.8);
     streak = 0;
-    
-    haha.style.display = "block";
-    setTimeout(() => { haha.style.display = "none"; }, 1100);
-    
+    haha.style.display = "flex";
+    setTimeout(() => { haha.style.display = "none"; }, 1200);
     isHoldingCheese = false;
     sourceBowl.style.opacity = "1";
     holdingIndicator.style.display = "none";
     save();
 }
 
-// --- SHOP LOGIC ---
+// --- SHOP & UI ---
+
 function sellCheese() {
     let req = 10 - (state.lvlLess * 2);
     if (state.cheese >= req) {
@@ -122,29 +175,23 @@ function sellCheese() {
 }
 
 function buyExtraCheese() {
-    let cost = 10 * Math.pow(2, state.lvlExtra);
+    let cost = Math.pow(2, state.lvlExtra) * 10;
     if (state.points >= cost && state.lvlExtra < 5) {
-        state.points -= cost;
-        state.lvlExtra++;
-        save();
+        state.points -= cost; state.lvlExtra++; save();
     }
 }
 
 function buyLessCheese() {
-    let cost = 50 * (state.lvlLess + 1);
+    let cost = (state.lvlLess + 1) * 50;
     if (state.points >= cost && state.lvlLess < 4) {
-        state.points -= cost;
-        state.lvlLess++;
-        save();
+        state.points -= cost; state.lvlLess++; save();
     }
 }
 
 function buyExtraPoints() {
-    let cost = 100 * state.lvlMulti;
+    let cost = state.lvlMulti * 100;
     if (state.points >= cost && state.lvlMulti < 5) {
-        state.points -= cost;
-        state.lvlMulti++;
-        save();
+        state.points -= cost; state.lvlMulti++; save();
     }
 }
 
@@ -156,40 +203,23 @@ function save() {
 function updateUI() {
     document.getElementById('cheese-count').innerText = Math.floor(state.cheese).toLocaleString();
     document.getElementById('points-count').innerText = Math.floor(state.points).toLocaleString();
-    
     document.getElementById('lvl-extra').innerText = state.lvlExtra;
     document.getElementById('lvl-less').innerText = state.lvlLess;
     document.getElementById('val-multi').innerText = state.lvlMulti;
+    
+    document.getElementById('cost-extra').innerText = (Math.pow(2, state.lvlExtra) * 10).toLocaleString();
+    document.getElementById('cost-less').innerText = ((state.lvlLess + 1) * 50).toLocaleString();
+    document.getElementById('cost-multi').innerText = (state.lvlMulti * 100).toLocaleString();
 
-    document.getElementById('cost-extra').innerText = (10 * Math.pow(2, state.lvlExtra)).toLocaleString();
-    document.getElementById('cost-less').innerText = (50 * (state.lvlLess + 1)).toLocaleString();
-    document.getElementById('cost-multi').innerText = (100 * state.lvlMulti).toLocaleString();
-
-    // Check caps
     document.querySelectorAll('.upgrade-card').forEach(card => {
-        let isCapped = false;
-        if (card.id === 'up-extra' && state.lvlExtra >= 5) isCapped = true;
-        if (card.id === 'up-less' && state.lvlLess >= 4) isCapped = true;
-        if (card.id === 'up-points' && state.lvlMulti >= 5) isCapped = true;
-
-        const cost = parseInt(card.querySelector('.up-cost').innerText.replace(/,/g, ''));
-        card.disabled = (state.points < cost) || isCapped;
-        if (isCapped) card.querySelector('.up-cost').innerText = "MAXED";
+        const costTxt = card.querySelector('.up-cost')?.innerText.replace(/,/g, '');
+        if (costTxt && state.points < parseInt(costTxt)) card.disabled = true;
+        else card.disabled = false;
+        if (state.points < 1000 && card.classList.contains('catnip')) card.disabled = true;
     });
 }
 
-function clearSaveAndReload() {
-    localStorage.removeItem(storageKey);
-    location.reload();
-}
+function clearSaveAndReload() { localStorage.removeItem(storageKey); location.reload(); }
+function triggerWin() { document.getElementById('win-screen').style.display = "flex"; }
 
-function triggerWin() {
-    document.getElementById('win-screen').style.display = "flex";
-}
-
-// Start sequence
-window.onload = () => {
-    catImg.src = mainCatPhoto;
-    updateUI();
-    gameLoop();
-};
+window.onload = () => { save(); gameLoop(); };
