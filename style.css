@@ -106,3 +106,11 @@ body {
     50% { transform: scale(1.15); }
     100% { transform: scale(1); }
 }
+
+@keyframes shake {
+    0% { transform: translate(1px, 1px) rotate(0deg); }
+    20% { transform: translate(-1px, -1px) rotate(1deg); }
+    40% { transform: translate(1px, -1px) rotate(-1deg); }
+    60% { transform: translate(-1px, 1px) rotate(0deg); }
+    100% { transform: translate(1px, 1px) rotate(0deg); }
+}
