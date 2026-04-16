@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cheese Thief</title>
+    <title>Cheese Thief [TWO-TAP]</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
+        
         <header id="stat-bar">
             <div class="stat-item">
                 <span class="label">STOLEN:</span>
@@ -20,8 +21,12 @@
         </header>
 
         <main id="game-arena">
+            
             <div id="cat-container">
                 <img id="cat-img" src="IMG_9246.png" alt="Sleeping Cat">
+                
+                <div id="cat-status-indicator" class="sleeping"></div>
+                
                 <div id="haha-overlay">HAHA</div>
             </div>
             
@@ -33,15 +38,17 @@
                 <div id="transfer-line">⬇️</div>
                 <button id="bowl-target" class="bowl-btn" onclick="tapTarget()">
                     <span class="icon">🥣</span>
-                    <div id="holding-indicator">🧀</div>
+                    <span id="holding-indicator">🧀</span>
                 </button>
             </div>
         </main>
 
         <footer id="shop">
-            <button id="btn-sell" onclick="sellCheese()">SELL CHEESE</button>
-            
+            <div class="shop-action">
+                <button id="btn-sell" onclick="sellCheese()">SELL CHEESE</button>
+            </div>
             <div class="upgrades-grid">
+                
                 <button id="up-extra" onclick="buyExtraCheese()" class="upgrade-card">
                     <span class="up-title">Extra Cheese (Lvl <span id="lvl-extra">0</span>)</span>
                     <p class="up-desc">Steal more cheese per sequence (Max 5).</p>
@@ -59,15 +66,18 @@
                     <p class="up-desc">Earn extra points from selling (x1 ➔ x5).</p>
                     <span class="up-cost" id="cost-multi">100</span> Pts
                 </button>
+
             </div>
         </footer>
+
     </div>
 
     <div id="win-screen">
         <h1>🏆</h1>
-        <p>CONGRATS! YOU WIN!</p>
-        <button onclick="clearSaveAndReload()">Reset Game</button>
+        <p>You stole it all!</p>
+        <button onclick="clearSaveAndReload()">Reset & Play Again</button>
     </div>
+    <canvas id="confetti-canvas"></canvas>
 
     <script src="script.js"></script>
 </body>
