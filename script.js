@@ -48,12 +48,12 @@ function loop() {
     let delay = Math.random() * 4000 + 2000;
     setTimeout(() => {
         isAlert = true;
-        catImg.src = "cat_alert.png"; // CHANGE TO YOUR ALERT IMAGE
+        catImg.src = "IMG_9248.png"; // CHANGE TO YOUR ALERT IMAGE
         catImg.style.transform = "scale(1.1)";
         
         setTimeout(() => {
             isAlert = false;
-            catImg.src = "cat.png";
+            catImg.src = "IMG_9246.png";
             catImg.style.transform = "scale(1)";
             loop();
         }, 1200);
