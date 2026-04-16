@@ -5,29 +5,31 @@ let state = JSON.parse(localStorage.getItem(storageKey)) || {
 
 const WIN_TARGET = 200000;
 const catImg = document.getElementById('cat-img');
+const statusIndicator = document.getElementById('cat-status-indicator'); // The new square
 const haha = document.getElementById('haha-overlay');
 const targetBowl = document.getElementById('bowl-target');
 const sourceBowl = document.getElementById('bowl-source');
 const holdingIndicator = document.getElementById('holding-indicator');
 
-const sleepingCat = "IMG_9246.png"; 
-const alertCat = "IMG_9248.png";
+// Config: Using ONLY the sleeping photo
+const mainCatPhoto = "IMG_9246.png"; 
 
 let isAlert = false;
 let isHoldingCheese = false;
-let loopActive = false;
+let loopActive = false; // Prevents multiple loops starting
 
-// MECHANIC: PICK UP
+// MECHANIC: PICK UP (Tap Source)
 function tapSource() {
     if (isAlert) { triggerLoss(); return; }
     if (isHoldingCheese) return; 
 
     isHoldingCheese = true;
     sourceBowl.style.opacity = "0.3";
-    holdingIndicator.style.display = "block";
+    holdingIndicator.style.display = "block"; 
+    holdingIndicator.innerText = "🧀";
 }
 
-// MECHANIC: DROP OFF
+// MECHANIC: DROP OFF (Tap Target)
 function tapTarget() {
     if (isAlert) { triggerLoss(); return; }
     if (!isHoldingCheese) return; 
@@ -41,35 +43,46 @@ function tapTarget() {
     save();
 }
 
-// ALERT LOGIC: 10-15s SAFE WINDOW
+// FIXED ALERT LOGIC (Fixed "Tripping" between cycles)
 function gameLoop() {
     if (loopActive) return; 
     loopActive = true;
 
     function runCycle() {
-        // Wait 10-15 seconds before cat wakes up
+        // Safe Window: 10-15 seconds (Green Square)
         let safeTime = Math.floor(Math.random() * 5001) + 10000; 
         
+        // Ensure green state is set
+        statusIndicator.className = "sleeping"; 
+
         setTimeout(() => {
+            // ALERT STATE: Cat wakes up (Red Square)
             isAlert = true;
-            catImg.src = alertCat;
+            statusIndicator.className = "alert";
+            catImg.style.transform = "scale(1.05)"; // Visual "tension" feedback
             
-            // Stay awake for 1.3 seconds
+            // Cat stays alert for 1.3 seconds
             setTimeout(() => {
                 isAlert = false;
-                catImg.src = sleepingCat;
-                runCycle(); 
+                catImg.style.transform = "scale(1)";
+                // Resetting to green inside runCycle()
+                runCycle(); // Only start next cycle AFTER this one finishes
             }, 1300);
+
         }, safeTime);
     }
+
     runCycle();
 }
 
 function triggerLoss() {
+    // Penalty: Lose 20% of points
     state.points = Math.floor(state.points * 0.8);
+    
     haha.style.display = "block";
     setTimeout(() => { haha.style.display = "none"; }, 1100);
     
+    // Reset holding state if caught mid-transfer
     isHoldingCheese = false;
     sourceBowl.style.opacity = "1";
     holdingIndicator.style.display = "none";
@@ -121,6 +134,7 @@ function save() {
 function updateUI() {
     document.getElementById('cheese-count').innerText = Math.floor(state.cheese).toLocaleString();
     document.getElementById('points-count').innerText = Math.floor(state.points).toLocaleString();
+    
     document.getElementById('lvl-extra').innerText = state.lvlExtra;
     document.getElementById('lvl-less').innerText = state.lvlLess;
     document.getElementById('val-multi').innerText = state.lvlMulti;
@@ -150,7 +164,9 @@ function triggerWin() {
     document.getElementById('win-screen').style.display = "flex";
 }
 
+// Start sequence when browser is ready
 window.onload = () => {
+    catImg.src = mainCatPhoto; // Force the single sleeping image
     updateUI();
     gameLoop();
 };
