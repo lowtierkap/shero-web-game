@@ -1,119 +1,124 @@
-let points = 0;
-let pointsPerSecond = 0;
-let tapMultiplier = 1;
-let lotionCost = 500;
+// --- GAME STATE & LOCAL STORAGE ---
+let state = JSON.parse(localStorage.getItem('cheeseGame')) || {
+    cheese: 0, points: 0,
+    lvlExtra: 0, lvlLess: 0, lvlMulti: 1
+};
 
-const countDisplay = document.getElementById('purr-count');
-const ppsDisplay = document.getElementById('pps-display');
-const hitbox = document.getElementById('belly-hitbox');
-
-// Audio Synthesis for the Purr
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-function playPurr() {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(40, audioCtx.currentTime); // Deep rumble
-    
-    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.15);
+function save() {
+    localStorage.setItem('cheeseGame', JSON.stringify(state));
+    updateUI();
 }
 
-// interaction Handler
-function handleInteraction(e) {
-    // Determine coordinates based on touch or mouse
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+// --- CONSTANTS & DOM ---
+const WIN_TARGET = 200000;
+const catImg = document.getElementById('cat-img');
+const cheeseItem = document.getElementById('cheese-item');
+const targetBowl = document.getElementById('bowl-target');
+const haha = document.getElementById('haha-overlay');
 
-    // Rate limiting: only trigger roughly 15% of movement events to keep it balanced
-    if (Math.random() > 0.85) {
-        addPoint(clientX, clientY);
+let isAlert = false;
+
+// --- DRAG AND DROP LOGIC ---
+cheeseItem.addEventListener('touchstart', (e) => {
+    if (isAlert) triggerLoss();
+});
+
+cheeseItem.onmousedown = () => { if (isAlert) triggerLoss(); };
+
+cheeseItem.addEventListener('dragend', (e) => {
+    // Check if dropped near target bowl
+    const rect = targetBowl.getBoundingClientRect();
+    if (e.clientX >= rect.left && e.clientX <= rect.right &&
+        e.clientY >= rect.top && e.clientY <= rect.bottom) {
+        
+        let amount = 1 + state.lvlExtra;
+        state.cheese += amount;
+        
+        // Visual feedback
+        cheeseItem.style.transform = "scale(1.5)";
+        setTimeout(() => cheeseItem.style.transform = "scale(1)", 100);
+        
+        if (state.cheese >= WIN_TARGET) triggerWin();
+        save();
+    }
+});
+
+// --- ALERT LOGIC (THE RISK) ---
+function loop() {
+    let delay = Math.random() * 4000 + 2000;
+    setTimeout(() => {
+        isAlert = true;
+        catImg.src = "cat_alert.png"; // CHANGE TO YOUR ALERT IMAGE
+        catImg.style.transform = "scale(1.1)";
+        
+        setTimeout(() => {
+            isAlert = false;
+            catImg.src = "cat.png";
+            catImg.style.transform = "scale(1)";
+            loop();
+        }, 1200);
+    }, delay);
+}
+loop();
+
+function triggerLoss() {
+    state.points = Math.floor(state.points * 0.8);
+    haha.style.display = "block";
+    setTimeout(() => { haha.style.display = "none"; }, 1000);
+    save();
+}
+
+// --- SHOP LOGIC ---
+function sellCheese() {
+    let req = 10 - (state.lvlLess * 2);
+    if (state.cheese >= req) {
+        state.cheese -= req;
+        state.points += (1 * state.lvlMulti);
+        save();
     }
 }
 
-function addPoint(x, y) {
-    points += tapMultiplier;
-    playPurr();
-    createFloatingText(x, y, `+${tapMultiplier}`);
-    updateDisplay();
-}
-
-function createFloatingText(x, y, text) {
-    const el = document.createElement('div');
-    el.className = 'floating-text';
-    el.style.left = `${x}px`;
-    el.style.top = `${y}px`;
-    el.innerText = text;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 600);
-}
-
-// Event Listeners for Rubbing
-hitbox.addEventListener('mousemove', handleInteraction);
-
-hitbox.addEventListener('touchmove', function(e) {
-    e.preventDefault(); // STOPS PAGE SCROLL
-    handleInteraction(e);
-}, { passive: false });
-
-// Also allow clicking/tapping
-hitbox.addEventListener('mousedown', (e) => addPoint(e.clientX, e.clientY));
-hitbox.addEventListener('touchstart', function(e) {
-    e.preventDefault(); // STOPS PAGE BOUNCE
-    addPoint(e.touches[0].clientX, e.touches[0].clientY);
-}, { passive: false });
-
-// Shop Functions
-function buyUpgrade(id, cost, pps) {
-    if (points >= cost) {
-        points -= cost;
-        pointsPerSecond += pps;
-        const btn = document.getElementById(`upgrade-${id}`);
-        const nextCost = Math.floor(cost * 1.6);
-        btn.setAttribute('onclick', `buyUpgrade('${id}', ${nextCost}, ${pps})`);
-        btn.querySelector('.price').innerText = `Cost: ${nextCost.toLocaleString()}`;
-        updateDisplay();
+function buyExtraCheese() {
+    let cost = 10 * Math.pow(2, state.lvlExtra);
+    if (state.points >= cost && state.lvlExtra < 5) {
+        state.points -= cost;
+        state.lvlExtra++;
+        save();
     }
 }
 
-function buyLotion() {
-    if (points >= lotionCost) {
-        points -= lotionCost;
-        tapMultiplier *= 2;
-        lotionCost *= 5;
-        document.getElementById('lotion-cost').innerText = `Cost: ${lotionCost.toLocaleString()}`;
-        updateDisplay();
+function buyLessCheese() {
+    let cost = 50 * (state.lvlLess + 1);
+    if (state.points >= cost && state.lvlLess < 4) {
+        state.points -= cost;
+        state.lvlLess++;
+        save();
     }
 }
 
-function updateDisplay() {
-    countDisplay.innerText = Math.floor(points).toLocaleString();
-    ppsDisplay.innerText = `PPS: ${pointsPerSecond.toFixed(1)}`;
-    
-    // UI Button state
-    document.querySelectorAll('.upgrade-btn').forEach(btn => {
-        const costTxt = btn.querySelector('.price').innerText.replace(/[^0-9]/g, '');
-        btn.disabled = points < parseInt(costTxt);
-    });
+function buyExtraPoints() {
+    let cost = 100 * state.lvlMulti;
+    if (state.points >= cost && state.lvlMulti < 5) {
+        state.points -= cost;
+        state.lvlMulti++;
+        save();
+    }
 }
 
-// Idle Loop (10 ticks per second)
-setInterval(() => {
-    if (pointsPerSecond > 0) {
-        points += (pointsPerSecond / 10);
-        updateDisplay();
-    }
-}, 100);
+function updateUI() {
+    document.getElementById('cheese-count').innerText = Math.floor(state.cheese).toLocaleString();
+    document.getElementById('points-count').innerText = state.points.toLocaleString();
+    document.getElementById('lvl-extra').innerText = state.lvlExtra;
+    document.getElementById('cost-extra').innerText = (10 * Math.pow(2, state.lvlExtra));
+    document.getElementById('lvl-less').innerText = state.lvlLess;
+    document.getElementById('cost-less').innerText = 50 * (state.lvlLess + 1);
+    document.getElementById('val-multi').innerText = state.lvlMulti;
+    document.getElementById('cost-multi').innerText = 100 * state.lvlMulti;
+}
 
-// Set initial state
-updateDisplay();
+function triggerWin() {
+    document.getElementById('win-screen').style.display = "flex";
+    // Confetti logic would go here
+}
+
+updateUI();
