@@ -2,41 +2,44 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belly Rub Simulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Cheese Thief</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="stats">
-        <div class="counter-label">Purr Points</div>
-        <p id="purr-count">0</p>
-        <div id="pps-display">Points Per Second: 0</div>
+    <div id="ui">
+        <div class="stat">Stolen Cheese: <span id="cheese-count">0</span> / 200,000</div>
+        <div class="stat">Points: <span id="points-count">0</span></div>
     </div>
 
-    <div id="game-container">
-        <img id="cat-image" src="IMG_9246.png" alt="Sleeping Cat">
-        <div id="belly-hitbox"></div>
+    <div id="game-zone">
+        <img id="cat-img" src="IMG_9246.png" alt="Sleeping Cat">
+        <div id="haha-overlay">HAHA</div>
+        
+        <div id="bowl-source" class="bowl">
+            🥣
+            <div id="cheese-item" draggable="true">🧀</div>
+        </div>
+
+        <div id="bowl-target" class="bowl">🥣</div>
     </div>
 
     <div id="shop">
-        <button class="upgrade-btn" id="upgrade-feather" onclick="buyUpgrade('feather', 100, 1)">
-            <span>🪶 Feather Duster</span>
-            <span class="price">Cost: 100</span>
-        </button>
-        <button class="upgrade-btn" id="upgrade-post" onclick="buyUpgrade('post', 1000, 10)">
-            <span>🪵 Scratch Post</span>
-            <span class="price">Cost: 1,000</span>
-        </button>
-        <button class="upgrade-btn" id="upgrade-machine" onclick="buyUpgrade('machine', 10000, 100)">
-            <span>🤖 Purr-o-matic</span>
-            <span class="price">Cost: 10,000</span>
-        </button>
-        <button class="upgrade-btn" id="upgrade-lotion" onclick="buyLotion()">
-            <span>🧴 Silk Lotion (2x Tap)</span>
-            <span class="price" id="lotion-cost">Cost: 500</span>
-        </button>
+        <button id="btn-sell" onclick="sellCheese()">Sell Cheese</button>
+        <div class="upgrades">
+            <button id="up-extra" onclick="buyExtraCheese()">Extra Cheese (Lvl <span id="lvl-extra">0</span>)<br><span class="cost" id="cost-extra">10</span> Pts</button>
+            <button id="up-less" onclick="buyLessCheese()">Less Req (Lvl <span id="lvl-less">0</span>)<br><span class="cost" id="cost-less">50</span> Pts</button>
+            <button id="up-points" onclick="buyExtraPoints()">Multi (x<span id="val-multi">1</span>)<br><span class="cost" id="cost-multi">100</span> Pts</button>
+        </div>
     </div>
+
+    <div id="win-screen">
+        <h1>🏆 YOU STOLE IT ALL! 🏆</h1>
+        <p>Shero is still asleep.</p>
+        <button onclick="location.reload()">Play Again</button>
+    </div>
+
+    <canvas id="confetti-canvas"></canvas>
 
     <script src="script.js"></script>
 </body>
